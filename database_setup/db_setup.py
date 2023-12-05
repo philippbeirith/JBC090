@@ -129,7 +129,7 @@ from political_leaning
 ), unique_ids as (
 select distinct auhtor_ID
 from main_pool
-)
+), matrix as (
 select distinct auhtor_ID,
 case when auhtor_ID in (select distinct auhtor_ID from birth_year) then 1 else 0 end as birth_year,
 case when auhtor_ID in (select distinct auhtor_ID from extrovert_introvert) then 1 else 0 end as extrovert_introvert,
@@ -138,9 +138,12 @@ case when auhtor_ID in (select distinct auhtor_ID from gender) then 1 else 0 end
 case when auhtor_ID in (select distinct auhtor_ID from judging_perceiving) then 1 else 0 end as judging_perceiving,
 case when auhtor_ID in (select distinct auhtor_ID from nationality) then 1 else 0 end as nationality,
 case when auhtor_ID in (select distinct auhtor_ID from political_leaning) then 1 else 0 end as political_leaning,
-case when auhtor_ID in (select distinct auhtor_ID from sensing_intuitive) then 1 else 0 end as sensing_intuitive,
-birth_year + extrovert_introvert + feeling_thinking + gender + judging_perceiving + nationality + political_leaning + sensing_intuitive as total_involvement
+case when auhtor_ID in (select distinct auhtor_ID from sensing_intuitive) then 1 else 0 end as sensing_intuitive
 from unique_ids
+)
+select *, 
+    birth_year + extrovert_introvert + feeling_thinking + gender + judging_perceiving + nationality + political_leaning + sensing_intuitive as total_involvement 
+from matrix
 '''
 
 user_participation = pd.read_sql_query(query_user_participation, conn)
