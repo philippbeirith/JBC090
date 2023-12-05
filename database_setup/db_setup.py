@@ -36,5 +36,118 @@ nationality_df.to_sql('nationality', conn, if_exists='replace', index=False)
 political_leaning_df.to_sql('political_leaning', conn, if_exists='replace', index=False)
 sensing_intuitive_df.to_sql('sensing_intuitive', conn, if_exists='replace', index=False)
 
+print('adding rollup tables')
+
+query_table_rollup = '''
+select 
+'birth_year' as table_name,
+count(*) as total_entries,
+count(distinct auhtor_ID) as distinct_users
+from birth_year
+group by 1
+union all
+select 
+'extrovert_introvert' as table_name,
+count(*) as total_entries,
+count(distinct auhtor_ID) as distinct_users
+from extrovert_introvert
+group by 1
+union all
+select 
+'feeling_thinking' as table_name,
+count(*) as total_entries,
+count(distinct auhtor_ID) as distinct_users
+from feeling_thinking
+group by 1
+union all 
+select 
+'gender' as table_name,
+count(*) as total_entries,
+count(distinct auhtor_ID) as distinct_users
+from gender
+group by 1
+union all
+select 
+'judging_perceiving' as table_name,
+count(*) as total_entries,
+count(distinct auhtor_ID) as distinct_users
+from judging_perceiving
+group by 1
+union all
+select 
+'nationality' as table_name,
+count(*) as total_entries,
+count(distinct auhtor_ID) as distinct_users
+from nationality
+group by 1
+union all
+select 
+'political_leaning' as table_name,
+count(*) as total_entries,
+count(distinct auhtor_ID) as distinct_users
+from political_leaning
+group by 1
+union all
+select 
+'sensing_intuitive' as table_name,
+count(*) as total_entries,
+count(distinct auhtor_ID) as distinct_users
+from sensing_intuitive
+group by 1
+'''
+
+table_rollup = pd.read_sql_query(query_table_rollup, conn)
+table_rollup.to_sql('table_rollup', conn, if_exists='replace', index=False)
+
+print('adding user participation matrix')
+
+query_user_participation = '''
+with main_pool as (
+select distinct auhtor_ID
+from birth_year
+union all 
+select distinct auhtor_ID
+from extrovert_introvert
+union all 
+select distinct auhtor_ID
+from feeling_thinking
+union all 
+select distinct auhtor_ID
+from gender
+union all 
+select distinct auhtor_ID
+from judging_perceiving
+union all 
+select distinct auhtor_ID
+from nationality
+union all 
+select distinct auhtor_ID
+from sensing_intuitive
+union all 
+select distinct auhtor_ID
+from political_leaning
+), unique_ids as (
+select distinct auhtor_ID
+from main_pool
+)
+select distinct auhtor_ID,
+case when auhtor_ID in (select distinct auhtor_ID from birth_year) then 1 else 0 end as birth_year,
+case when auhtor_ID in (select distinct auhtor_ID from extrovert_introvert) then 1 else 0 end as extrovert_introvert,
+case when auhtor_ID in (select distinct auhtor_ID from feeling_thinking) then 1 else 0 end as feeling_thinking,
+case when auhtor_ID in (select distinct auhtor_ID from gender) then 1 else 0 end as gender,
+case when auhtor_ID in (select distinct auhtor_ID from judging_perceiving) then 1 else 0 end as judging_perceiving,
+case when auhtor_ID in (select distinct auhtor_ID from nationality) then 1 else 0 end as nationality,
+case when auhtor_ID in (select distinct auhtor_ID from political_leaning) then 1 else 0 end as political_leaning,
+case when auhtor_ID in (select distinct auhtor_ID from sensing_intuitive) then 1 else 0 end as sensing_intuitive,
+birth_year + extrovert_introvert + feeling_thinking + gender + judging_perceiving + nationality + political_leaning + sensing_intuitive as total_involvement
+from unique_ids
+'''
+
+user_participation = pd.read_sql_query(query_user_participation, conn)
+user_participation.to_sql('user_participation', conn, if_exists='replace', index=False)
+
 #finished
 conn.close()
+
+print('done')
+

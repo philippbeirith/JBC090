@@ -16,6 +16,7 @@ def pull(query:str):
     conn.close()
     return(result)
 
+#RESULT: there are no users that appear in all tables
 user_spread = '''
 select count(distinct auhtor_ID)
 from  birth_year
@@ -37,4 +38,8 @@ inner join political_leaning
 using(auhtor_ID)
 '''
 
-print(pull(user_spread))
+p_matrix = '''
+select *
+from user_participation
+'''
+m = (pull(p_matrix))
