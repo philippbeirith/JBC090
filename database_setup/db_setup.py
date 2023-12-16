@@ -149,6 +149,83 @@ from matrix
 user_participation = pd.read_sql_query(query_user_participation, conn)
 user_participation.to_sql('user_participation', conn, if_exists='replace', index=False)
 
+print('Adding research_dataset')
+
+query_research_dataset = '''
+with selected_users as (
+select distinct auhtor_ID, feeling
+from feeling_thinking
+), political_leaning_ as (
+select selected_users.auhtor_ID, 
+        a.post,
+        selected_users.feeling
+from political_leaning as a
+inner join selected_users
+on selected_users.auhtor_ID = a.auhtor_ID
+), nationality_ as (
+select selected_users.auhtor_ID, 
+        a.post,
+        selected_users.feeling
+from nationality as a
+inner join selected_users
+on selected_users.auhtor_ID = a.auhtor_ID
+), judging_perceiving_ as (
+select selected_users.auhtor_ID, 
+        a.post,
+        selected_users.feeling
+from judging_perceiving as a
+inner join selected_users
+on selected_users.auhtor_ID = a.auhtor_ID
+), gender_ as (
+select selected_users.auhtor_ID, 
+        a.post,
+        selected_users.feeling
+from gender as a
+inner join selected_users
+on selected_users.auhtor_ID = a.auhtor_ID
+), extrovert_introvert_ as (
+select selected_users.auhtor_ID, 
+        a.post,
+        selected_users.feeling
+from extrovert_introvert as a
+inner join selected_users
+on selected_users.auhtor_ID = a.auhtor_ID
+), sensing_intuitive_ as (
+select selected_users.auhtor_ID, 
+        a.post,
+        selected_users.feeling
+from sensing_intuitive as a
+inner join selected_users
+on selected_users.auhtor_ID = a.auhtor_ID
+), birth_year_ as (
+select selected_users.auhtor_ID, 
+        a.post,
+        selected_users.feeling
+from birth_year as a
+inner join selected_users
+on selected_users.auhtor_ID = a.auhtor_ID
+)
+select *, 'original' as source
+from feeling_thinking
+union all
+select *, 'sensing_intuitive' as source from sensing_intuitive_
+union all
+select *, 'extrovert_introvert' as source from extrovert_introvert_
+union all
+select *, 'gender' as source from gender_
+union all
+select *, 'judging_perceiving' as source from judging_perceiving_
+union all
+select *, 'nationality' as source from nationality_
+union all
+select *, 'political_leaning' as source from political_leaning_
+union all
+select *, 'birth_year' as source from birth_year_
+'''
+
+research_dataset = pd.read_sql_query(query_research_dataset , conn)
+research_dataset.to_sql('research_dataset', conn, if_exists='replace', index=False)
+
 #finished
 conn.close()
 
