@@ -56,7 +56,16 @@ print(pull(test))
 test_2 = ''' select * from birth_year where  auhtor_ID = 't2_tjqum' '''
 print(pull(test_2))
 
-#Pull dataset used for research:
-pull_rd = ''' select * from research_dataset'''
+#Pull dataset used for research. You will need to run this twice by changing the inequality on line 66 and changing the file name in line 68.
+#this is so it can be fed into chatgpt:
+pull_rd = ''' 
+with initial as (
+select *, row_number() over (partition by null) as ord
+from research_dataset
+)
+select * from initial where ord > 45000'''
 print(pull(pull_rd))
 dataset = (pull(pull_rd))
+dataset.to_csv('output.csv', index=False, header=True)
+
+
